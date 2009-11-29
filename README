@@ -1,0 +1,25 @@
+Automatic georeferencing for UAV imagery
+----------------------------------------
+
+This is a continuation of work started by "Blue Team" at Random Hacks of Kindness #0. It aims to automatically georeference aerial imagery collected by UAVS by using object matching such as SIFT or SURF to match the imagery to existing base imagery.
+
+The UAV imagery can be roughly position by using the on-board IMU and GPS data to project the image frame to ground scale. Unfortunately, the positioning is not very good, due to limitations in the speed and resolution of the UAV's sensors.
+
+The rough placement of the imagery does allow for effcient use of image matching since the search space is greatly reduced.
+
+The input to the program could be either a KML containing the image or an image that has been roughly georeferenced using GDAL and saved as a geotiff. In the case of the first, the KML's image position could be modified, for the latter the imagery could be rewarped with GDAL to a more accurate position.
+
+This code relies on Jan Erik Solem's sift.py (http://jesolem.blogspot.com/2009/02/sift-python-implementation.html) which is based on David Lowe's orginal implementation (http://www.cs.ubc.ca/%7Elowe/keypoints/). Other image matching binaries, such as SURF, have also been added for experimentation. As long as the use similar locator/descriptor formatting as SIFT they should be interchangeable.
+
+*This code is still being debugged - It's about halfway there*
+
+General workflow:
+
++ Instantiate one of the UAVImage objects, passing it the path to the image or kml
++ Instantiate a ControlImage object, passing it the UAVImage it will provide control for
++ Optional: scale the UAVImage's in-memory image to closer match the size of the control image.
++ Call the UAVImage's tranformTo method, which will either rewarp the image or modify the KML.
+
+After some experimentation, it might turn out that we will always want to scale the UAV image to closer match the control imagery. Even though SIFT and SURF are scale-invariant, it may be more efficient to keep the scales similar.
+
+KML transforming has not been implemented yet. The transfromTo method will have to introspect its object type to figure out which transform to do: GDAL or KML. 
